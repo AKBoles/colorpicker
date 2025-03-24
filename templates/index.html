@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <title>Real-Life Color Picker</title>
-  <!-- Cropper.js CSS (via CDN) -->
+
+  <!-- Cropper.js CSS (pinned version via CDN) -->
   <link
     rel="stylesheet"
-    href="https://unpkg.com/cropperjs/dist/cropper.css"
+    href="https://unpkg.com/cropperjs@1.5.12/dist/cropper.css"
   />
+
   <style>
     /* Basic styling */
     #image-container {
@@ -50,8 +52,9 @@
 
   <div id="result" style="text-align:center;"></div>
 
-  <!-- Cropper.js JS (via CDN) -->
-  <script src="https://unpkg.com/cropperjs"></script>
+  <!-- Load Cropper.js (pinned version) BEFORE using it in your custom script -->
+  <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
+
   <script>
     let cropper;
     const uploadInput = document.getElementById('upload-image');
