@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Real-Life Color Picker</title>
+  <!-- Cropper.js CSS (via CDN) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/cropperjs/dist/cropper.css"
+  />
+  <style>
+    /* Basic styling */
+    #image-container {
+      max-width: 90%;
+      margin: 0 auto;
+      text-align: center;
+    }
+    img {
+      max-width: 100%;
+    }
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    #color-box {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      margin-left: 10px;
+      vertical-align: middle;
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">Real-Life Color Picker</h1>
+
+  <div style="text-align:center;">
+    <input type="file" id="upload-image" accept="image/*" />
+  </div>
+
+  <div id="image-container">
+    <img id="cropping-image" style="display:none;" />
+  </div>
+
+  <div style="text-align:center; margin-top:1rem;">
+    <button id="analyze-btn" disabled>Get Dominant Color</button>
+  </div>
+
+  <div id="result" style="text-align:center;"></div>
+
+  <!-- Cropper.js JS (via CDN) -->
+  <script src="https://unpkg.com/cropperjs"></script>
+  <script>
+    let cropper;
+    const uploadInput = document.getElementById('upload-image');
+    const croppingImage = document.getElementById('cropping-image');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const resultDiv = document.getElementById('result');
+
+    // When user selects a file
+    uploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Create a blob URL
+      const imageURL = URL.createObjectURL(file);
+
+      croppingImage.src = imageURL;
+      croppingImage.style.display = 'block';
+
+      // Wait for the image to load
+      croppingImage.onload = () => {
+        // Destroy old cropper if it exists
+        if (cropper) {
+          cropper.destroy();
+        }
+
+        // Initialize Cropper.js
+        cropper = new Cropper(croppingImage, {
+          aspectRatio: NaN,
+          viewMode: 1,
+          movable: true,
+          zoomable: true,
+          scalable: true,
+          autoCropArea: 1
+        });
+
+        analyzeBtn.disabled = false;
+        resultDiv.textContent = '';
+      };
+    });
+
+    analyzeBtn.addEventListener('click', () => {
+      if (!cropper) return;
+
+      // Get the cropped area as a base64 string
+      const croppedCanvas = cropper.getCroppedCanvas();
+      if (!croppedCanvas) {
+        alert('Please crop the image first.');
+        return;
+      }
+
+      const base64Data = croppedCanvas.toDataURL('image/png');
+
+      // Send this base64 to the server
+      fetch('/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          cropped_image: base64Data
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            resultDiv.textContent = 'Error: ' + data.error;
+          } else {
+            const hexCode = data.hex;
+            resultDiv.innerHTML = `Dominant Color: ${hexCode}
+              <div id="color-box" style="background:${hexCode}"></div>`;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          resultDiv.textContent = 'An error occurred.';
+        });
+    });
+  </script>
+</body>
+</html>
