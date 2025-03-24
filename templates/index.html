@@ -52,9 +52,8 @@
 
   <div id="result" style="text-align:center;"></div>
 
-  <!-- Load Cropper.js (pinned version) BEFORE using it in your custom script -->
+  <!-- Cropper.js JS (pinned version) -->
   <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
-
   <script>
     let cropper;
     const uploadInput = document.getElementById('upload-image');
@@ -67,6 +66,8 @@
       const file = e.target.files[0];
       if (!file) return;
 
+      console.log("Selected file type:", file.type);
+
       // Create a blob URL
       const imageURL = URL.createObjectURL(file);
 
@@ -75,6 +76,8 @@
 
       // Wait for the image to load
       croppingImage.onload = () => {
+        console.log('Image onload triggered. Initializing Cropper.');
+
         // Destroy old cropper if it exists
         if (cropper) {
           cropper.destroy();
@@ -99,7 +102,12 @@
       if (!cropper) return;
 
       // Get the cropped area as a base64 string
-      const croppedCanvas = cropper.getCroppedCanvas();
+      // -> We'll resize it here in the client to reduce file size
+      const croppedCanvas = cropper.getCroppedCanvas({
+        maxWidth: 1000,
+        maxHeight: 1000
+      });
+
       if (!croppedCanvas) {
         alert('Please crop the image first.');
         return;
