@@ -1,215 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Real-Life Color Picker</title>
-  <!-- Make the page mobile-responsive -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Cropper.js CSS (pinned version) -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/cropperjs@1.5.12/dist/cropper.css"
-  />
-
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background: #f8f9fa; /* light gray */
-      color: #333;
+fetch('/upload', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    cropped_image: base64Data
+  })
+})
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      resultDiv.textContent = 'Error: ' + data.error;
+    } else {
+      const { hex, rgb, cmyk, hsl } = data;
+      resultDiv.innerHTML = `
+        <p>Dominant Color (HEX): <strong>${hex}</strong></p>
+        <div style="background:${hex}; width:40px; height:40px; display:inline-block; vertical-align:middle; margin-left:8px;"></div>
+        <p>RGB: <strong>${rgb}</strong></p>
+        <p>CMYK: <strong>${cmyk}</strong></p>
+        <p>HSL: <strong>${hsl}</strong></p>
+      `;
     }
-    header {
-      text-align: center;
-      padding: 1rem 0.5rem;
-      background: #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 1rem;
-    }
-    h1 {
-      margin: 0.5rem 0;
-      font-size: 1.5rem;
-    }
-    #instructions {
-      max-width: 600px;
-      margin: 0.5rem auto;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      color: #555;
-    }
-
-    #file-upload-container {
-      text-align: center;
-      margin: 1rem;
-    }
-    #upload-image {
-      font-size: 0.9rem;
-      padding: 0.5rem;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #image-container {
-      max-width: 90%;
-      margin: 0 auto;
-      text-align: center;
-    }
-    #cropping-image {
-      max-width: 100%;
-      display: none;
-    }
-
-    #analyze-btn {
-      padding: 0.7rem 1rem;
-      font-size: 0.9rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      background: #007bff;
-      color: #fff;
-      transition: background 0.2s;
-    }
-    #analyze-btn:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-    #analyze-btn:hover:not(:disabled) {
-      background: #0056b3;
-    }
-
-    #result {
-      margin-top: 1rem;
-      font-size: 1rem;
-      font-weight: bold;
-      text-align: center;
-    }
-    #color-box {
-      display: inline-block;
-      width: 40px;
-      height: 40px;
-      margin-left: 10px;
-      vertical-align: middle;
-      border: 1px solid #000;
-    }
-  </style>
-</head>
-<body>
-
-  <header>
-    <h1>Real-Life Color Picker</h1>
-    <div id="instructions">
-      <p>
-        Upload or take a photo, then pinch or drag the crop box so that the selected area 
-        contains predominantly one color. Afterwards, tap 
-        <strong>Get Dominant Color</strong> to see its HEX code.
-      </p>
-    </div>
-  </header>
-
-  <div id="file-upload-container">
-    <input type="file" id="upload-image" accept="image/*" />
-  </div>
-
-  <div id="image-container">
-    <img id="cropping-image" />
-  </div>
-
-  <div style="text-align:center; margin-top:1rem;">
-    <button id="analyze-btn" disabled>Get Dominant Color</button>
-  </div>
-
-  <div id="result"></div>
-
-  <!-- Load Cropper.js (pinned version) -->
-  <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
-  <script>
-    let cropper;
-    const uploadInput = document.getElementById('upload-image');
-    const croppingImage = document.getElementById('cropping-image');
-    const analyzeBtn = document.getElementById('analyze-btn');
-    const resultDiv = document.getElementById('result');
-
-    // Handle file input
-    uploadInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      console.log("Selected file type:", file.type);
-
-      // Generate a local URL from the file
-      const imageURL = URL.createObjectURL(file);
-      croppingImage.src = imageURL;
-      croppingImage.style.display = 'block';
-
-      // When the image finishes loading
-      croppingImage.onload = () => {
-        console.log('Image onload triggered. Initializing Cropper.');
-
-        // Destroy old cropper if it exists
-        if (cropper) {
-          cropper.destroy();
-        }
-
-        // Initialize Cropper.js
-        cropper = new Cropper(croppingImage, {
-          aspectRatio: NaN,        // Let the user control any aspect ratio
-          viewMode: 1,             // Restrict the crop box from exceeding the image boundaries
-          movable: true,
-          zoomable: true,
-          scalable: true,
-          autoCropArea: 0.3,       // Smaller initial crop area (30% of the image)
-        });
-
-        analyzeBtn.disabled = false;
-        resultDiv.textContent = '';
-      };
-    });
-
-    analyzeBtn.addEventListener('click', () => {
-      if (!cropper) return;
-
-      // Resize the cropped area on the client to avoid huge images
-      const croppedCanvas = cropper.getCroppedCanvas({
-        maxWidth: 1000,
-        maxHeight: 1000
-      });
-
-      if (!croppedCanvas) {
-        alert('Please crop the image first.');
-        return;
-      }
-
-      const base64Data = croppedCanvas.toDataURL('image/png');
-
-      // Send the base64 data to the server
-      fetch('/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          cropped_image: base64Data
-        })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.error) {
-            resultDiv.textContent = 'Error: ' + data.error;
-          } else {
-            const hexCode = data.hex;
-            resultDiv.innerHTML = `Dominant Color: ${hexCode}
-              <div id="color-box" style="background:${hexCode}"></div>`;
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          resultDiv.textContent = 'An error occurred.';
-        });
-    });
-  </script>
-</body>
-</html>
+  })
+  .catch(err => {
+    console.error(err);
+    resultDiv.textContent = 'An error occurred.';
+  });
