@@ -26,7 +26,6 @@
       background: #fff; 
       margin-bottom: 1rem;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      position: relative;
     }
     h1 {
       margin: 0.5rem 0; 
@@ -38,22 +37,6 @@
       font-size: 0.9rem; 
       line-height: 1.4; 
       color: #555;
-    }
-    /* Button for Buy Me a Coffee link */
-    #support-button {
-      display: inline-block;
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-      text-decoration: none;
-      background: #ffdd00; /* or any color you prefer */
-      color: #000;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      transition: background 0.2s;
-    }
-    #support-button:hover {
-      background: #ffe44c;
     }
 
     #file-upload-container {
@@ -77,6 +60,7 @@
       max-width: 100%; 
       display: none;
     }
+
     #analyze-btn {
       padding: 0.7rem 1rem; 
       font-size: 0.9rem; 
@@ -94,6 +78,7 @@
     #analyze-btn:hover:not(:disabled) {
       background: #0056b3;
     }
+
     #result {
       margin-top: 1rem; 
       font-size: 1rem; 
@@ -112,6 +97,29 @@
       height: 40px; 
       border: 1px solid #000;
     }
+
+    /* Footer styling for Buy Me a Coffee link */
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      padding: 1rem;
+      background: #fff;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    }
+    #support-button {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      text-decoration: none;
+      background: #ffdd00; /* or any color */
+      color: #000;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      transition: background 0.2s;
+    }
+    #support-button:hover {
+      background: #ffe44c;
+    }
   </style>
 </head>
 <body>
@@ -120,19 +128,10 @@
     <div id="instructions">
       <p>
         Upload or take a photo, then adjust the crop box to focus on the area 
-        that contains the colors you’re interested in. We’ll analyze it with K-Means 
-        clustering and show you the top 4 dominant colors!
+        that contains the colors you’re interested in. We’ll analyze it with 
+        K-Means clustering and show you the top 4 dominant colors!
       </p>
     </div>
-    <!-- Support Button -->
-    <a
-      id="support-button"
-      href="https://buymeacoffee.com/bolesdata"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Buy Me a Coffee
-    </a>
   </header>
 
   <div id="file-upload-container">
@@ -149,6 +148,18 @@
 
   <div id="result"></div>
 
+  <!-- Buy Me a Coffee link at the bottom -->
+  <footer>
+    <a
+      id="support-button"
+      href="https://buymeacoffee.com/bolesdata"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Buy Me a Coffee
+    </a>
+  </footer>
+
   <!-- Cropper.js (pinned) -->
   <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
   <script>
@@ -158,7 +169,7 @@
     const analyzeBtn = document.getElementById('analyze-btn');
     const resultDiv = document.getElementById('result');
 
-    // 1. Handle file input
+    // Handle file input
     uploadInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -169,7 +180,7 @@
 
       // When the image finishes loading
       croppingImage.onload = () => {
-        // Destroy old cropper if exists
+        // Destroy old cropper if it exists
         if (cropper) {
           cropper.destroy();
         }
@@ -187,7 +198,7 @@
       };
     });
 
-    // 2. Handle the "Get Top 4 Colors" button
+    // Handle the "Get Top 4 Colors" button
     analyzeBtn.addEventListener('click', () => {
       if (!cropper) return;
 
@@ -204,7 +215,7 @@
 
       const base64Data = croppedCanvas.toDataURL('image/png');
 
-      // 3. Send the cropped image to server
+      // Send the cropped image to server
       fetch('/upload', {
         method: 'POST',
         headers: {
