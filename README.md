@@ -14,8 +14,8 @@ A web app that lets you **upload/crop an image** and returns the **top 4** most 
 
 ## Demo
 
-*(Optional)*  
-Link to a live demo (if deployed), e.g. [Your Live Demo](#).
+
+![Screenshot of the Color Picker](./images/screenshot.png)
 
 ---
 
@@ -43,10 +43,3 @@ Link to a live demo (if deployed), e.g. [Your Live Demo](#).
    - The front-end receives the JSON and displays each color as a small swatch plus numeric codes.
 
 ---
-
-## Installation (Local)
-
-1. **Clone** the repo:
-   ```bash
-   git clone https://github.com/yourusername/multi-cluster-color-picker.git
-   cd multi-cluster-color-picker
