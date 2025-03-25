@@ -12,11 +12,10 @@ A web app that lets you **upload/crop an image** and returns the **top 4** most 
 
 ---
 
-## Demo
+## Example Images
 
-
-![Screenshot of the Color Picker](./images/example1.jpg)
-![Screenshot of the Color Picker](./images/example2.jpg)
+<img src="./images/example1.jpg" alt="Screenshot" width="400" />
+<img src="./images/example2.jpg" alt="Screenshot" width="400" />
 
 ---
 
