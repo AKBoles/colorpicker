@@ -3,27 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <title>Real-Life Color Picker</title>
+  <!-- Make the page mobile-responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Cropper.js CSS (pinned version via CDN) -->
+  <!-- Cropper.js CSS (pinned version) -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/cropperjs@1.5.12/dist/cropper.css"
   />
 
   <style>
-    /* Basic styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: #f8f9fa; /* light gray */
+      color: #333;
+    }
+    header {
+      text-align: center;
+      padding: 1rem 0.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+    h1 {
+      margin: 0.5rem 0;
+      font-size: 1.5rem;
+    }
+    #instructions {
+      max-width: 600px;
+      margin: 0.5rem auto;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: #555;
+    }
+
+    #file-upload-container {
+      text-align: center;
+      margin: 1rem;
+    }
+    #upload-image {
+      font-size: 0.9rem;
+      padding: 0.5rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
     #image-container {
       max-width: 90%;
       margin: 0 auto;
       text-align: center;
     }
-    img {
+    #cropping-image {
       max-width: 100%;
+      display: none;
     }
+
+    #analyze-btn {
+      padding: 0.7rem 1rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #007bff;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    #analyze-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    #analyze-btn:hover:not(:disabled) {
+      background: #0056b3;
+    }
+
     #result {
       margin-top: 1rem;
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: bold;
+      text-align: center;
     }
     #color-box {
       display: inline-block;
@@ -36,23 +98,33 @@
   </style>
 </head>
 <body>
-  <h1 style="text-align:center;">Real-Life Color Picker</h1>
 
-  <div style="text-align:center;">
+  <header>
+    <h1>Real-Life Color Picker</h1>
+    <div id="instructions">
+      <p>
+        Upload or take a photo, then pinch or drag the crop box so that the selected area 
+        contains predominantly one color. Afterwards, tap 
+        <strong>Get Dominant Color</strong> to see its HEX code.
+      </p>
+    </div>
+  </header>
+
+  <div id="file-upload-container">
     <input type="file" id="upload-image" accept="image/*" />
   </div>
 
   <div id="image-container">
-    <img id="cropping-image" style="display:none;" />
+    <img id="cropping-image" />
   </div>
 
   <div style="text-align:center; margin-top:1rem;">
     <button id="analyze-btn" disabled>Get Dominant Color</button>
   </div>
 
-  <div id="result" style="text-align:center;"></div>
+  <div id="result"></div>
 
-  <!-- Cropper.js JS (pinned version) -->
+  <!-- Load Cropper.js (pinned version) -->
   <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
   <script>
     let cropper;
@@ -61,20 +133,19 @@
     const analyzeBtn = document.getElementById('analyze-btn');
     const resultDiv = document.getElementById('result');
 
-    // When user selects a file
+    // Handle file input
     uploadInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       console.log("Selected file type:", file.type);
 
-      // Create a blob URL
+      // Generate a local URL from the file
       const imageURL = URL.createObjectURL(file);
-
       croppingImage.src = imageURL;
       croppingImage.style.display = 'block';
 
-      // Wait for the image to load
+      // When the image finishes loading
       croppingImage.onload = () => {
         console.log('Image onload triggered. Initializing Cropper.');
 
@@ -85,12 +156,12 @@
 
         // Initialize Cropper.js
         cropper = new Cropper(croppingImage, {
-          aspectRatio: NaN,
-          viewMode: 1,
+          aspectRatio: NaN,        // Let the user control any aspect ratio
+          viewMode: 1,             // Restrict the crop box from exceeding the image boundaries
           movable: true,
           zoomable: true,
           scalable: true,
-          autoCropArea: 1
+          autoCropArea: 0.3,       // Smaller initial crop area (30% of the image)
         });
 
         analyzeBtn.disabled = false;
@@ -101,8 +172,7 @@
     analyzeBtn.addEventListener('click', () => {
       if (!cropper) return;
 
-      // Get the cropped area as a base64 string
-      // -> We'll resize it here in the client to reduce file size
+      // Resize the cropped area on the client to avoid huge images
       const croppedCanvas = cropper.getCroppedCanvas({
         maxWidth: 1000,
         maxHeight: 1000
@@ -115,7 +185,7 @@
 
       const base64Data = croppedCanvas.toDataURL('image/png');
 
-      // Send this base64 to the server
+      // Send the base64 data to the server
       fetch('/upload', {
         method: 'POST',
         headers: {
