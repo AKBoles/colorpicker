@@ -15,7 +15,8 @@ A web app that lets you **upload/crop an image** and returns the **top 4** most 
 ## Demo
 
 
-![Screenshot of the Color Picker](./images/screenshot.png)
+![Screenshot of the Color Picker](./images/example1.jpg)
+![Screenshot of the Color Picker](./images/example2.jpg)
 
 ---
 
