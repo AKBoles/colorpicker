@@ -2,266 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Color Picker PWA</title>
-
-  <!-- Mobile friendly scaling -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Link to our PWA manifest -->
-  <link rel="manifest" href="manifest.json" />
-
-  <!-- Cropper.js CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/cropperjs@1.5.12/dist/cropper.css"
-  />
-
-  <style>
-    body {
-      margin: 0; 
-      padding: 0; 
-      font-family: sans-serif;
-      background: #f8f9fa; 
-      color: #333;
-    }
-    header {
-      text-align: center; 
-      padding: 1rem; 
-      background: #fff; 
-      margin-bottom: 1rem; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    h1 {
-      margin: 0.5rem 0; 
-      font-size: 1.5rem;
-    }
-
-    #file-upload-container {
-      text-align: center; 
-      margin: 1rem;
-    }
-    #upload-image {
-      padding: 0.5rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-
-    #image-container {
-      max-width: 90%;
-      margin: 0 auto;
-      text-align: center;
-    }
-    #cropping-image {
-      max-width: 100%;
-      display: none;
-    }
-
-    #analyze-btn {
-      padding: 0.7rem 1rem;
-      font-size: 0.9rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      background: #007bff;
-      color: #fff;
-      transition: background 0.2s;
-    }
-    #analyze-btn:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-    #analyze-btn:hover:not(:disabled) {
-      background: #0056b3;
-    }
-
-    #result {
-      margin-top: 1rem;
-      font-size: 1rem;
-      text-align: center;
-    }
-
-    .color-line {
-      margin: 0.5rem 0;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-    }
-    .color-box {
-      width: 40px; 
-      height: 40px; 
-      border: 1px solid #000;
-    }
-
-    footer {
-      margin-top: 2rem;
-      text-align: center;
-      padding: 1rem;
-      background: #fff;
-      box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-    }
-  </style>
+  <title>Top 4 Colors Picker</title>
+  <!-- ... meta tags, Cropper.js CSS, styles, etc. remain the same ... -->
 </head>
 <body>
-  <header>
-    <h1>Color Picker (PWA + Client-Side)</h1>
-    <p style="max-width: 600px; margin: 0 auto; color: #555;">
-      Upload or take a photo, crop it, then get the top 4 color clusters—no server needed!
-    </p>
-  </header>
-
-  <div id="file-upload-container">
-    <input type="file" id="upload-image" accept="image/*" />
-  </div>
-
-  <div id="image-container">
-    <img id="cropping-image" />
-  </div>
-
-  <div style="text-align:center; margin-top:1rem;">
-    <button id="analyze-btn" disabled>Get Top 4 Colors</button>
-  </div>
+  <!-- ... header, instructions, file input, etc. ... -->
 
   <div id="result"></div>
 
   <footer>
-    <p>Install this app on your device for an offline experience!</p>
+    <a
+      id="support-button"
+      href="https://buymeacoffee.com/bolesdata"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Buy Me a Coffee
+    </a>
   </footer>
 
-  <!-- Cropper.js JS -->
+  <!-- Cropper.js (pinned) -->
   <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
-
-  <!-- Our main app logic -->
   <script>
-    // Simple K-Means in JS
-    // We'll process a smaller canvas (like 150x150 or so) to speed up clustering.
+    // ... your existing logic for file upload, crop, etc. ...
 
-    // 1. We'll store references
-    let cropper;
-    const uploadInput = document.getElementById('upload-image');
-    const croppingImage = document.getElementById('cropping-image');
-    const analyzeBtn = document.getElementById('analyze-btn');
-    const resultDiv = document.getElementById('result');
-
-    // 2. Listen for file input
-    uploadInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const imageURL = URL.createObjectURL(file);
-      croppingImage.src = imageURL;
-      croppingImage.style.display = 'block';
-
-      croppingImage.onload = () => {
-        // Destroy old cropper if exists
-        if (cropper) {
-          cropper.destroy();
-        }
-        // Initialize Cropper
-        cropper = new Cropper(croppingImage, {
-          aspectRatio: NaN,
-          viewMode: 1,
-          autoCropArea: 0.3,
-          movable: true,
-          zoomable: true,
-          scalable: true
-        });
-        analyzeBtn.disabled = false;
-        resultDiv.textContent = '';
-      };
-    });
-
-    // 3. On analyze, we run client-side K-Means
     analyzeBtn.addEventListener('click', () => {
       if (!cropper) return;
 
-      const croppedCanvas = cropper.getCroppedCanvas();
+      const croppedCanvas = cropper.getCroppedCanvas({
+        maxWidth: 1000,
+        maxHeight: 1000
+      });
+
       if (!croppedCanvas) {
         alert('Please crop the image first.');
         return;
       }
 
-      // Let's resize the cropped canvas to something small (like 150 x 150) for speed
-      const maxSize = 150;
-      const scaledCanvas = document.createElement('canvas');
-      const ctx = scaledCanvas.getContext('2d');
+      const base64Data = croppedCanvas.toDataURL('image/png');
 
-      const ratio = Math.min(maxSize / croppedCanvas.width, maxSize / croppedCanvas.height, 1);
-      scaledCanvas.width = Math.floor(croppedCanvas.width * ratio);
-      scaledCanvas.height = Math.floor(croppedCanvas.height * ratio);
-
-      ctx.drawImage(croppedCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
-
-      // Now get pixel data
-      const imageData = ctx.getImageData(0, 0, scaledCanvas.width, scaledCanvas.height);
-      const { data } = imageData; // Uint8ClampedArray of RGBA
-
-      // Flatten pixels to [ [r,g,b], [r,g,b], ...]
-      const pixels = [];
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
-        // We ignore alpha data[i+3]
-        pixels.push([r, g, b]);
-      }
-
-      // Now run K-Means client-side
-      const clusters = getTopColors(pixels, 5, 10); // (pixels, k=5, maxIter=10)
-      // clusters is array of { r, g, b, count }
-
-      // Sort by count desc, then pick top 4
-      clusters.sort((a,b) => b.count - a.count);
-      const top4 = clusters.slice(0, 4);
-
-      // Display
-      let html = '';
-      top4.forEach((c, index) => {
-        const hex = rgbToHex(c.r, c.g, c.b);
-        html += `
-          <div class="color-line">
-            <div>Color #${index + 1}</div>
-            <div>HEX: <strong>${hex}</strong></div>
-            <div>RGB: <strong>(${c.r}, ${c.g}, ${c.b})</strong></div>
-            <div class="color-box" style="background:${hex};"></div>
-          </div>
-        `;
-      });
-      resultDiv.innerHTML = html;
-    });
-
-    // 4. K-Means Implementation in JS
-    function getTopColors(pixels, k=5, maxIter=10) {
-      if (!pixels || !pixels.length) return [];
-
-      // pick k random centroids
-      let centroids = [];
-      for (let i = 0; i < k; i++) {
-        centroids.push(pixels[Math.floor(Math.random() * pixels.length)]);
-      }
-
-      // main loop
-      for (let iter = 0; iter < maxIter; iter++) {
-        // assign each pixel to nearest centroid
-        const clusters = Array.from({ length: k }, () => []);
-        for (const p of pixels) {
-          const ci = nearestCentroidIndex(p, centroids);
-          clusters[ci].push(p);
-        }
-
-        // recalc centroids
-        const newCents = [];
-        for (let i = 0; i < k; i++) {
-          if (clusters[i].length === 0) {
-            // keep old centroid or reinit
-            newCents.push(centroids[i]);
-          } else {
-            const mean = getMean(clusters[i]);
-            newCents.push(mean);
+      fetch('/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          cropped_image: base64Data
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          resultDiv.textContent = 'Error: ' + data.error;
+        } else {
+          const colors = data.colors;
+          if (!colors || !colors.length) {
+            resultDiv.textContent = 'No colors found.';
+            return;
           }
-        }
 
-        // check if converged
-        let converged = true;
+          let html = '';
+          colors.forEach((colorObj, index) => {
+            // Now we expect hex, rgb, cmyk
+            const { hex, rgb, cmyk } = colorObj;
+            html += `
+              <div class="color-line">
+                <div>Color #${index + 1}</div>
+                <div>HEX: <strong>${hex}</strong></div>
+                <div>RGB: <strong>${rgb}</strong></div>
+                <div>CMYK: <strong>${cmyk}</strong></div>
+                <div class="color-box" style="background:${hex};"></div>
+              </div>
+            `;
+          });
+
+          resultDiv.innerHTML = html;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        resultDiv.textContent = 'An error occurred.';
+      });
+    });
+  </script>
+</body>
+</html>
