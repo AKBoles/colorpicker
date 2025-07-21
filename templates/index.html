@@ -4,12 +4,18 @@
   <meta charset="UTF-8" />
   <title>Advanced Color Picker & Palette Analyzer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Professional color analysis tool with AI-powered features, accessibility testing, and color theory insights" />
   
   <!-- Cropper.js CSS -->
   <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.5.12/dist/cropper.css" />
   
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+  <!-- PWA Manifest -->
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <style>
     :root {
@@ -43,7 +49,7 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -235,6 +241,19 @@
 
     .btn-success:hover:not(:disabled) {
       background: #059669;
+    }
+
+    .btn-info {
+      background: var(--info-color);
+    }
+
+    .btn-info:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
     }
 
     .image-section {
@@ -429,6 +448,171 @@
       opacity: 0.8;
     }
 
+    .psychology-info {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin-top: 1rem;
+    }
+
+    .psychology-info h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    .psychology-traits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .trait-tag {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+
+    .advanced-tools {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 2rem;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .tool-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .tool-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tool-card h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+      color: var(--primary-color);
+    }
+
+    .harmony-selector {
+      margin: 1rem 0;
+    }
+
+    .harmony-selector select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      background: white;
+    }
+
+    .color-picker-input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+    }
+
+    .accessibility-matrix {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .accessibility-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 80px 60px 60px 60px 60px;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.5rem;
+      background: var(--light-color);
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .accessibility-row.header {
+      font-weight: 600;
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .compliance-badge {
+      padding: 0.2rem 0.4rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      text-align: center;
+      color: white;
+    }
+
+    .compliance-pass {
+      background: var(--success-color);
+    }
+
+    .compliance-fail {
+      background: var(--danger-color);
+    }
+
+    .blindness-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .blindness-card {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1rem;
+    }
+
+    .blindness-card h4 {
+      margin: 0 0 1rem 0;
+      font-size: 1rem;
+      text-transform: capitalize;
+    }
+
+    .blindness-colors {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .blindness-color {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .mockup-display {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .mockup-display img {
+      max-width: 100%;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
     .tooltip {
       position: relative;
       cursor: help;
@@ -449,6 +633,32 @@
       z-index: 1000;
     }
 
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .tab.active {
+      border-bottom-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     @media (max-width: 768px) {
       .container {
         padding: 10px;
@@ -462,6 +672,10 @@
         grid-template-columns: 1fr;
       }
       
+      .tool-grid {
+        grid-template-columns: 1fr;
+      }
+      
       .controls {
         flex-direction: column;
         align-items: stretch;
@@ -470,14 +684,23 @@
       .slider-container {
         justify-content: space-between;
       }
+      
+      .accessibility-row {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      .accessibility-row.header {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1><i class="fas fa-palette"></i> Advanced Color Picker</h1>
-      <p>Upload an image, crop it, and discover its color palette with detailed information including HEX, RGB, CMYK, HSL, HSV, and more!</p>
+      <h1><i class="fas fa-palette"></i> Advanced Color Picker Pro</h1>
+      <p>Professional color analysis with AI-powered insights, accessibility testing, and color theory tools</p>
     </div>
 
     <div class="main-content">
@@ -530,7 +753,7 @@
         </div>
 
         <div class="single-pixel-info" id="single-pixel-info">
-          <h3>Single Pixel Color</h3>
+          <h3>Single Pixel Color Analysis</h3>
           <div id="pixel-color-display"></div>
         </div>
       </div>
@@ -565,6 +788,107 @@
         </button>
       </div>
     </div>
+
+    <div class="advanced-tools" id="advanced-tools" style="display: none;">
+      <h2 class="section-title">
+        <i class="fas fa-cogs"></i>
+        Advanced Color Tools
+      </h2>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="harmony">
+          <i class="fas fa-adjust"></i> Color Harmony
+        </div>
+        <div class="tab" data-tab="accessibility">
+          <i class="fas fa-universal-access"></i> Accessibility
+        </div>
+        <div class="tab" data-tab="blindness">
+          <i class="fas fa-eye"></i> Color Blindness
+        </div>
+        <div class="tab" data-tab="mockup">
+          <i class="fas fa-desktop"></i> Mockups
+        </div>
+      </div>
+
+      <div class="tab-content active" id="harmony-tab">
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h3><i class="fas fa-palette"></i> Color Harmony Generator</h3>
+            <p>Generate color harmonies based on color theory principles.</p>
+            
+            <div class="harmony-selector">
+              <label for="base-color">Base Color:</label>
+              <input type="color" id="base-color" class="color-picker-input" value="#ff6b35" />
+            </div>
+            
+            <div class="harmony-selector">
+              <label for="harmony-type">Harmony Type:</label>
+              <select id="harmony-type">
+                <option value="complementary">Complementary</option>
+                <option value="analogous">Analogous</option>
+                <option value="triadic">Triadic</option>
+                <option value="tetradic">Tetradic</option>
+                <option value="split_complementary">Split Complementary</option>
+                <option value="monochromatic">Monochromatic</option>
+              </select>
+            </div>
+            
+            <button class="btn btn-info btn-small" id="generate-harmony-btn">
+              <i class="fas fa-magic"></i> Generate Harmony
+            </button>
+            
+            <div id="harmony-result"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="accessibility-tab">
+        <div class="tool-card">
+          <h3><i class="fas fa-universal-access"></i> Accessibility Compliance Check</h3>
+          <p>Check WCAG 2.1 accessibility compliance for your color palette.</p>
+          
+          <button class="btn btn-info btn-small" id="check-accessibility-btn">
+            <i class="fas fa-check-circle"></i> Check Accessibility
+          </button>
+          
+          <div id="accessibility-result"></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="blindness-tab">
+        <div class="tool-card">
+          <h3><i class="fas fa-eye"></i> Color Blindness Simulation</h3>
+          <p>See how your palette appears to people with different types of color blindness.</p>
+          
+          <button class="btn btn-info btn-small" id="simulate-blindness-btn">
+            <i class="fas fa-eye-slash"></i> Simulate Color Blindness
+          </button>
+          
+          <div id="blindness-result"></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="mockup-tab">
+        <div class="tool-card">
+          <h3><i class="fas fa-desktop"></i> Design Mockups</h3>
+          <p>Generate visual mockups using your color palette.</p>
+          
+          <div class="harmony-selector">
+            <label for="mockup-type">Mockup Type:</label>
+            <select id="mockup-type">
+              <option value="website">Website Layout</option>
+              <option value="logo">Logo Design</option>
+            </select>
+          </div>
+          
+          <button class="btn btn-info btn-small" id="generate-mockup-btn">
+            <i class="fas fa-paint-brush"></i> Generate Mockup
+          </button>
+          
+          <div id="mockup-result" class="mockup-display"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Cropper.js -->
@@ -574,6 +898,7 @@
     let cropper;
     let currentMode = 'crop';
     let currentImageData = null;
+    let currentPalette = [];
     
     const uploadInput = document.getElementById('upload-image');
     const uploadArea = document.getElementById('upload-area');
@@ -589,6 +914,7 @@
     const imageInfo = document.getElementById('image-info');
     const singlePixelInfo = document.getElementById('single-pixel-info');
     const pixelColorDisplay = document.getElementById('pixel-color-display');
+    const advancedTools = document.getElementById('advanced-tools');
 
     // Color count slider
     colorCountSlider.addEventListener('input', (e) => {
@@ -616,6 +942,17 @@
         }
         
         singlePixelInfo.style.display = currentMode === 'pixel' ? 'block' : 'none';
+      });
+    });
+
+    // Tab functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
       });
     });
 
@@ -761,9 +1098,11 @@
             ${createColorValueRow('HSL', color.hsl)}
             ${createColorValueRow('HSV', color.hsv)}
             <div class="accessibility-info">
+              <strong>Temperature:</strong> ${color.temperature} | 
               <strong>Luminance:</strong> ${color.luminance} | 
               <strong>Position:</strong> (${color.coordinates[0]}, ${color.coordinates[1]})
             </div>
+            ${color.psychology ? createPsychologyInfo(color.psychology) : ''}
           </div>
         </div>
       `;
@@ -827,6 +1166,7 @@
 
     function displayResults(data) {
       const { colors, image_info } = data;
+      currentPalette = colors.map(c => c.hex);
       
       // Display image info
       imageInfo.innerHTML = `
@@ -858,9 +1198,11 @@
             ${createColorValueRow('HSL', color.hsl)}
             ${createColorValueRow('HSV', color.hsv)}
             <div class="accessibility-info">
+              <strong>Temperature:</strong> ${color.temperature} | 
               <strong>Pixels:</strong> ${color.pixel_count.toLocaleString()} | 
               <strong>Luminance:</strong> ${color.luminance}
             </div>
+            ${color.psychology ? createPsychologyInfo(color.psychology) : ''}
           </div>
         `;
         
@@ -868,6 +1210,7 @@
       });
 
       resultsSection.style.display = 'block';
+      advancedTools.style.display = 'block';
       resultsSection.scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -885,25 +1228,319 @@
       `;
     }
 
-    // Export functionality
-    document.getElementById('export-palette').addEventListener('click', () => {
-      const colors = Array.from(colorGrid.children).map(card => {
-        const hex = card.querySelector('.color-value span').textContent.split('\n')[0].trim();
-        return hex;
+    function createPsychologyInfo(psychology) {
+      const traits = [
+        psychology.dominant_trait,
+        psychology.energy_level + ' energy',
+        psychology.formality,
+        psychology.temperature || 'neutral'
+      ];
+
+      const emotions = psychology.emotions || [];
+      const associations = psychology.associations || [];
+
+      return `
+        <div class="psychology-info">
+          <h4><i class="fas fa-brain"></i> Color Psychology</h4>
+          <div class="psychology-traits">
+            ${traits.map(trait => `<span class="trait-tag">${trait}</span>`).join('')}
+          </div>
+          ${emotions.length > 0 ? `<p><strong>Emotions:</strong> ${emotions.join(', ')}</p>` : ''}
+          ${associations.length > 0 ? `<p><strong>Associations:</strong> ${associations.join(', ')}</p>` : ''}
+        </div>
+      `;
+    }
+
+    // Advanced tools functionality
+
+    // Color Harmony Generator
+    document.getElementById('generate-harmony-btn').addEventListener('click', () => {
+      const baseColor = document.getElementById('base-color').value;
+      const harmonyType = document.getElementById('harmony-type').value;
+
+      showLoading('Generating color harmony...');
+
+      fetch('/generate-harmony', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          base_color: baseColor,
+          harmony_type: harmonyType
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.error) {
+          showError(data.error);
+        } else {
+          displayHarmonyResult(data);
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        showError('Error generating harmony.');
+        console.error(err);
+      });
+    });
+
+    function displayHarmonyResult(data) {
+      const result = document.getElementById('harmony-result');
+      const colors = data.colors;
+      
+      let html = `<h4>${data.harmony_type.replace('_', ' ')} Harmony</h4><div class="color-grid">`;
+      
+      colors.forEach(color => {
+        html += `
+          <div class="color-card">
+            <div class="color-preview" style="background-color: ${color.hex};">
+              <div style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                ${color.name}
+              </div>
+            </div>
+            <div class="color-info">
+              ${createColorValueRow('HEX', color.hex)}
+              ${createColorValueRow('RGB', color.rgb)}
+              ${createColorValueRow('HSL', color.hsl)}
+              ${color.psychology ? createPsychologyInfo(color.psychology) : ''}
+            </div>
+          </div>
+        `;
       });
       
-      const blob = new Blob([JSON.stringify(colors, null, 2)], { type: 'application/json' });
+      html += '</div>';
+      result.innerHTML = html;
+    }
+
+    // Accessibility Check
+    document.getElementById('check-accessibility-btn').addEventListener('click', () => {
+      if (currentPalette.length < 2) {
+        showError('Please analyze an image first to get a color palette.');
+        return;
+      }
+
+      showLoading('Checking accessibility compliance...');
+
+      fetch('/accessibility-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          colors: currentPalette
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.error) {
+          showError(data.error);
+        } else {
+          displayAccessibilityResult(data);
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        showError('Error checking accessibility.');
+        console.error(err);
+      });
+    });
+
+    function displayAccessibilityResult(data) {
+      const result = document.getElementById('accessibility-result');
+      const results = data.accessibility_results;
+      
+      let html = `
+        <h4>WCAG 2.1 Accessibility Compliance</h4>
+        <div class="accessibility-matrix">
+          <div class="accessibility-row header">
+            <div>Color 1</div>
+            <div>Color 2</div>
+            <div>Ratio</div>
+            <div>AA Normal</div>
+            <div>AA Large</div>
+            <div>AAA Normal</div>
+            <div>AAA Large</div>
+          </div>
+      `;
+      
+      results.forEach(result => {
+        html += `
+          <div class="accessibility-row">
+            <div style="background: ${result.color1}; color: white; padding: 0.25rem; border-radius: 4px;">${result.color1}</div>
+            <div style="background: ${result.color2}; color: white; padding: 0.25rem; border-radius: 4px;">${result.color2}</div>
+            <div>${result.contrast_ratio}</div>
+            <div><span class="compliance-badge ${result.wcag_aa_normal ? 'compliance-pass' : 'compliance-fail'}">${result.wcag_aa_normal ? 'PASS' : 'FAIL'}</span></div>
+            <div><span class="compliance-badge ${result.wcag_aa_large ? 'compliance-pass' : 'compliance-fail'}">${result.wcag_aa_large ? 'PASS' : 'FAIL'}</span></div>
+            <div><span class="compliance-badge ${result.wcag_aaa_normal ? 'compliance-pass' : 'compliance-fail'}">${result.wcag_aaa_normal ? 'PASS' : 'FAIL'}</span></div>
+            <div><span class="compliance-badge ${result.wcag_aaa_large ? 'compliance-pass' : 'compliance-fail'}">${result.wcag_aaa_large ? 'PASS' : 'FAIL'}</span></div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      result.innerHTML = html;
+    }
+
+    // Color Blindness Simulation
+    document.getElementById('simulate-blindness-btn').addEventListener('click', () => {
+      if (currentPalette.length === 0) {
+        showError('Please analyze an image first to get a color palette.');
+        return;
+      }
+
+      showLoading('Simulating color blindness...');
+
+      fetch('/color-blindness', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          colors: currentPalette
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.error) {
+          showError(data.error);
+        } else {
+          displayBlindnessResult(data);
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        showError('Error simulating color blindness.');
+        console.error(err);
+      });
+    });
+
+    function displayBlindnessResult(data) {
+      const result = document.getElementById('blindness-result');
+      const simulations = data.simulations;
+      
+      let html = '<h4>Color Blindness Simulation</h4><div class="blindness-grid">';
+      
+      Object.keys(simulations).forEach(type => {
+        html += `
+          <div class="blindness-card">
+            <h4>${type.replace('_', ' ')}</h4>
+            <div class="blindness-colors">
+              ${simulations[type].map(color => 
+                `<div class="blindness-color" style="background: ${color.simulated};" title="Original: ${color.original} → Simulated: ${color.simulated}"></div>`
+              ).join('')}
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      result.innerHTML = html;
+    }
+
+    // Mockup Generator
+    document.getElementById('generate-mockup-btn').addEventListener('click', () => {
+      if (currentPalette.length === 0) {
+        showError('Please analyze an image first to get a color palette.');
+        return;
+      }
+
+      const mockupType = document.getElementById('mockup-type').value;
+      showLoading('Generating mockup...');
+
+      fetch('/generate-mockup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          colors: currentPalette,
+          mockup_type: mockupType
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.error) {
+          showError(data.error);
+        } else {
+          displayMockupResult(data);
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        showError('Error generating mockup.');
+        console.error(err);
+      });
+    });
+
+    function displayMockupResult(data) {
+      const result = document.getElementById('mockup-result');
+      result.innerHTML = `
+        <h4>${data.mockup_type} Mockup</h4>
+        <img src="${data.mockup_image}" alt="${data.mockup_type} mockup" />
+      `;
+    }
+
+    // Export functionality
+    document.getElementById('export-palette').addEventListener('click', () => {
+      if (currentPalette.length === 0) {
+        showError('No palette to export. Please analyze an image first.');
+        return;
+      }
+
+      // Create export options modal
+      const format = prompt('Export format (json/css/scss):', 'json');
+      if (!format) return;
+
+      const name = prompt('Palette name:', 'Custom Palette');
+      if (!name) return;
+
+      fetch('/export-palette', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          colors: currentPalette,
+          format: format,
+          name: name
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          showError(data.error);
+        } else {
+          downloadFile(data.content, data.filename, data.mime_type);
+          showSuccess('Palette exported successfully!');
+        }
+      })
+      .catch(err => {
+        showError('Error exporting palette.');
+        console.error(err);
+      });
+    });
+
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'color-palette.json';
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
-      
-      showSuccess('Palette exported successfully!');
-    });
+    }
 
     document.getElementById('copy-all-colors').addEventListener('click', () => {
+      if (currentPalette.length === 0) {
+        showError('No colors to copy. Please analyze an image first.');
+        return;
+      }
+
       const colors = Array.from(colorGrid.children).map(card => {
         const colorValues = Array.from(card.querySelectorAll('.color-value')).map(cv => {
           const label = cv.querySelector('.color-label').textContent;
@@ -953,6 +1590,15 @@
     function hideMessages() {
       errorMessage.style.display = 'none';
       successMessage.style.display = 'none';
+    }
+
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("install", () => self.skipWaiting()); self.addEventListener("activate", () => self.clients.claim());')
+          .then(() => console.log('PWA ready'))
+          .catch(() => console.log('PWA registration failed'));
+      });
     }
   </script>
 </body>
