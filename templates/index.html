@@ -2,205 +2,786 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Top 4 Colors Picker</title>
-  <!-- Make the page mobile-friendly -->
+  <title>Advanced Color Picker & Palette Analyzer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Cropper.js CSS (pinned version) -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/cropperjs@1.5.12/dist/cropper.css"
-  />
+  
+  <!-- Cropper.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.5.12/dist/cropper.css" />
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
   <style>
-    body {
-      margin: 0; 
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background: #f8f9fa;
-      color: #333;
-    }
-    header {
-      text-align: center; 
-      padding: 1rem; 
-      background: #fff; 
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    h1 {
-      margin: 0.5rem 0; 
-      font-size: 1.5rem;
-    }
-    #instructions {
-      max-width: 600px; 
-      margin: 0.5rem auto; 
-      font-size: 0.9rem; 
-      line-height: 1.4; 
-      color: #555;
+    :root {
+      --primary-color: #4f46e5;
+      --secondary-color: #f59e0b;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --info-color: #3b82f6;
+      --light-color: #f8fafc;
+      --dark-color: #1e293b;
+      --border-color: #e2e8f0;
+      --text-color: #374151;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --border-radius: 8px;
+      --transition: all 0.3s ease;
     }
 
-    #file-upload-container {
-      text-align: center; 
-      margin: 1rem;
+    * {
+      box-sizing: border-box;
     }
-    #upload-image {
-      font-size: 0.9rem; 
-      padding: 0.5rem; 
-      background: #fff; 
-      border: 1px solid #ccc; 
-      border-radius: 4px; 
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: var(--text-color);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .header h1 {
+      margin: 0 0 1rem 0;
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--text-color);
+      opacity: 0.8;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .upload-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .section-title {
+      margin: 0 0 1.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      text-align: center;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      background: var(--light-color);
+    }
+
+    .upload-area:hover,
+    .upload-area.dragover {
+      border-color: var(--primary-color);
+      background: rgba(79, 70, 229, 0.05);
+    }
+
+    .upload-area i {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .upload-area p {
+      margin: 0.5rem 0;
+      color: var(--text-color);
+    }
+
+    .file-input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
       cursor: pointer;
     }
-    #image-container {
-      max-width: 90%; 
-      margin: 0 auto; 
-      text-align: center;
+
+    .controls {
+      margin: 1.5rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
     }
-    #cropping-image {
-      max-width: 100%; 
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .control-group label {
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .slider {
+      width: 150px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border-color);
+      outline: none;
+      appearance: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      border: none;
+      box-shadow: var(--shadow);
+    }
+
+    .btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #3730a3;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: var(--secondary-color);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #d97706;
+    }
+
+    .btn-success {
+      background: var(--success-color);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: #059669;
+    }
+
+    .image-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .image-container {
+      max-width: 100%;
+      margin: 1rem 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .cropping-image {
+      max-width: 100%;
+      display: none;
+      border-radius: var(--border-radius);
+    }
+
+    .pixel-picker-mode {
+      cursor: crosshair;
+    }
+
+    .results-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 2rem;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .color-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid var(--border-color);
+    }
+
+    .color-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .color-preview {
+      width: 100%;
+      height: 80px;
+      border-radius: var(--border-radius);
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .color-info {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .color-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      background: var(--light-color);
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .color-label {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+
+    .copy-btn:hover {
+      background: rgba(79, 70, 229, 0.1);
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .spinner {
+      border: 3px solid var(--border-color);
+      border-top: 3px solid var(--primary-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: var(--danger-color);
+      color: white;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin: 1rem 0;
       display: none;
     }
 
-    #analyze-btn {
-      padding: 0.7rem 1rem; 
-      font-size: 0.9rem; 
-      border: none; 
-      border-radius: 4px; 
-      cursor: pointer; 
-      background: #007bff; 
-      color: #fff; 
-      transition: background 0.2s;
-    }
-    #analyze-btn:disabled {
-      background: #aaa; 
-      cursor: not-allowed;
-    }
-    #analyze-btn:hover:not(:disabled) {
-      background: #0056b3;
-    }
-
-    #result {
-      margin-top: 1rem; 
-      font-size: 1rem; 
-      text-align: center;
-    }
-    .color-line {
-      margin: 0.5rem 0; 
-      display: flex; 
-      flex-direction: row; 
-      align-items: center; 
-      justify-content: center;
-      gap: 1rem;
-    }
-    .color-box {
-      width: 40px; 
-      height: 40px; 
-      border: 1px solid #000;
-    }
-
-    /* Footer styling for Buy Me a Coffee link */
-    footer {
-      margin-top: 2rem;
-      text-align: center;
+    .success-message {
+      background: var(--success-color);
+      color: white;
       padding: 1rem;
-      background: #fff;
-      box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+      border-radius: var(--border-radius);
+      margin: 1rem 0;
+      display: none;
     }
-    #support-button {
-      display: inline-block;
+
+    .image-info {
+      background: var(--light-color);
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .export-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      justify-content: center;
+    }
+
+    .mode-btn {
       padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-      text-decoration: none;
-      background: #ffdd00;
-      color: #000;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      transition: background 0.2s;
+      border: 1px solid var(--border-color);
+      background: white;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
     }
-    #support-button:hover {
-      background: #ffe44c;
+
+    .mode-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .single-pixel-info {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      margin: 1rem 0;
+      display: none;
+    }
+
+    .accessibility-info {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .tooltip {
+      position: relative;
+      cursor: help;
+    }
+
+    .tooltip:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark-color);
+      color: white;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      z-index: 1000;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .color-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .slider-container {
+        justify-content: space-between;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Top 4 Colors Picker</h1>
-    <div id="instructions">
-      <p>
-        Upload or take a photo, then adjust the crop box to focus on the area 
-        containing the colors you’re interested in. We’ll use K-Means to identify 
-        the top 4 clusters and show their HEX, RGB, and CMYK codes!
-      </p>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-palette"></i> Advanced Color Picker</h1>
+      <p>Upload an image, crop it, and discover its color palette with detailed information including HEX, RGB, CMYK, HSL, HSV, and more!</p>
     </div>
-  </header>
 
-  <div id="file-upload-container">
-    <input type="file" id="upload-image" accept="image/*" />
+    <div class="main-content">
+      <div class="upload-section">
+        <h2 class="section-title">
+          <i class="fas fa-upload"></i>
+          Upload & Configure
+        </h2>
+        
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="upload-image" accept="image/*" class="file-input" />
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p><strong>Click to upload</strong> or drag and drop</p>
+          <p>Supports JPG, PNG, WebP, and more</p>
+        </div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label for="color-count">Colors:</label>
+            <div class="slider-container">
+              <input type="range" id="color-count" class="slider" min="2" max="10" value="5" />
+              <span id="color-count-value">5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-mode="crop">
+            <i class="fas fa-crop"></i> Crop Mode
+          </button>
+          <button class="mode-btn" data-mode="pixel">
+            <i class="fas fa-crosshairs"></i> Pixel Picker
+          </button>
+        </div>
+
+        <button id="analyze-btn" class="btn" disabled>
+          <i class="fas fa-magic"></i>
+          Analyze Colors
+        </button>
+      </div>
+
+      <div class="image-section">
+        <h2 class="section-title">
+          <i class="fas fa-image"></i>
+          Image Preview
+        </h2>
+        
+        <div class="image-container">
+          <img id="cropping-image" class="cropping-image" />
+        </div>
+
+        <div class="single-pixel-info" id="single-pixel-info">
+          <h3>Single Pixel Color</h3>
+          <div id="pixel-color-display"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Analyzing colors...</p>
+    </div>
+
+    <div class="error-message" id="error-message"></div>
+    <div class="success-message" id="success-message"></div>
+
+    <div class="results-section" id="results-section" style="display: none;">
+      <h2 class="section-title">
+        <i class="fas fa-palette"></i>
+        Color Analysis Results
+      </h2>
+      
+      <div class="image-info" id="image-info"></div>
+      
+      <div class="color-grid" id="color-grid"></div>
+
+      <div class="export-section">
+        <button class="btn btn-secondary" id="export-palette">
+          <i class="fas fa-download"></i>
+          Export Palette
+        </button>
+        <button class="btn btn-success" id="copy-all-colors">
+          <i class="fas fa-copy"></i>
+          Copy All Colors
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div id="image-container">
-    <img id="cropping-image" />
-  </div>
-
-  <div style="text-align:center; margin-top:1rem;">
-    <button id="analyze-btn" disabled>Get Top 4 Colors</button>
-  </div>
-
-  <div id="result"></div>
-
-  <!-- Buy Me a Coffee link at the bottom -->
-  <footer>
-    <a
-      id="support-button"
-      href="https://buymeacoffee.com/bolesdata"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Buy Me a Coffee
-    </a>
-  </footer>
-
-  <!-- Cropper.js (pinned) -->
+  <!-- Cropper.js -->
   <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
+  
   <script>
     let cropper;
+    let currentMode = 'crop';
+    let currentImageData = null;
+    
     const uploadInput = document.getElementById('upload-image');
+    const uploadArea = document.getElementById('upload-area');
     const croppingImage = document.getElementById('cropping-image');
     const analyzeBtn = document.getElementById('analyze-btn');
-    const resultDiv = document.getElementById('result');
+    const resultsSection = document.getElementById('results-section');
+    const colorGrid = document.getElementById('color-grid');
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const colorCountSlider = document.getElementById('color-count');
+    const colorCountValue = document.getElementById('color-count-value');
+    const imageInfo = document.getElementById('image-info');
+    const singlePixelInfo = document.getElementById('single-pixel-info');
+    const pixelColorDisplay = document.getElementById('pixel-color-display');
 
-    // Handle file input
+    // Color count slider
+    colorCountSlider.addEventListener('input', (e) => {
+      colorCountValue.textContent = e.target.value;
+    });
+
+    // Mode toggle
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        
+        if (currentMode === 'pixel') {
+          croppingImage.classList.add('pixel-picker-mode');
+          if (cropper) {
+            cropper.destroy();
+            cropper = null;
+          }
+        } else {
+          croppingImage.classList.remove('pixel-picker-mode');
+          if (croppingImage.src && !cropper) {
+            initializeCropper();
+          }
+        }
+        
+        singlePixelInfo.style.display = currentMode === 'pixel' ? 'block' : 'none';
+      });
+    });
+
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileUpload(files[0]);
+      }
+    });
+
+    uploadArea.addEventListener('click', () => {
+      uploadInput.click();
+    });
+
     uploadInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
-      if (!file) return;
+      if (file) {
+        handleFileUpload(file);
+      }
+    });
+
+    function handleFileUpload(file) {
+      if (!file.type.startsWith('image/')) {
+        showError('Please select a valid image file.');
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        showError('Image too large. Please use an image smaller than 10MB.');
+        return;
+      }
 
       const imageURL = URL.createObjectURL(file);
       croppingImage.src = imageURL;
       croppingImage.style.display = 'block';
 
-      // When the image finishes loading
       croppingImage.onload = () => {
-        // Destroy old cropper if it exists
-        if (cropper) {
-          cropper.destroy();
+        URL.revokeObjectURL(imageURL);
+        
+        if (currentMode === 'crop') {
+          initializeCropper();
+        } else {
+          setupPixelPicker();
         }
-        // Initialize Cropper.js
-        cropper = new Cropper(croppingImage, {
-          aspectRatio: NaN,
-          viewMode: 1,
-          autoCropArea: 0.3, // start with 30% of the image
-          movable: true,
-          zoomable: true,
-          scalable: true
-        });
+        
         analyzeBtn.disabled = false;
-        resultDiv.textContent = '';
+        hideMessages();
       };
+    }
+
+    function initializeCropper() {
+      if (cropper) {
+        cropper.destroy();
+      }
+      
+      cropper = new Cropper(croppingImage, {
+        aspectRatio: NaN,
+        viewMode: 1,
+        autoCropArea: 0.8,
+        movable: true,
+        zoomable: true,
+        scalable: true,
+        rotatable: true,
+        responsive: true
+      });
+    }
+
+    function setupPixelPicker() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = croppingImage.naturalWidth;
+      canvas.height = croppingImage.naturalHeight;
+      ctx.drawImage(croppingImage, 0, 0);
+      currentImageData = canvas.toDataURL('image/png');
+
+      croppingImage.addEventListener('click', handlePixelClick);
+    }
+
+    function handlePixelClick(e) {
+      if (currentMode !== 'pixel' || !currentImageData) return;
+
+      const rect = croppingImage.getBoundingClientRect();
+      const scaleX = croppingImage.naturalWidth / rect.width;
+      const scaleY = croppingImage.naturalHeight / rect.height;
+      
+      const x = Math.floor((e.clientX - rect.left) * scaleX);
+      const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+      showLoading('Getting pixel color...');
+
+      fetch('/single-pixel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          image_data: currentImageData,
+          x: x,
+          y: y
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.error) {
+          showError(data.error);
+        } else {
+          displaySinglePixelColor(data.color);
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        showError('An error occurred while getting pixel color.');
+        console.error(err);
+      });
+    }
+
+    function displaySinglePixelColor(color) {
+      pixelColorDisplay.innerHTML = `
+        <div class="color-card">
+          <div class="color-preview" style="background-color: ${color.hex}; color: ${color.contrast_color};">
+            <div style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-weight: bold;">
+              ${color.name}
+            </div>
+          </div>
+          <div class="color-info">
+            ${createColorValueRow('HEX', color.hex)}
+            ${createColorValueRow('RGB', color.rgb)}
+            ${createColorValueRow('CMYK', color.cmyk)}
+            ${createColorValueRow('HSL', color.hsl)}
+            ${createColorValueRow('HSV', color.hsv)}
+            <div class="accessibility-info">
+              <strong>Luminance:</strong> ${color.luminance} | 
+              <strong>Position:</strong> (${color.coordinates[0]}, ${color.coordinates[1]})
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    analyzeBtn.addEventListener('click', () => {
+      if (currentMode === 'crop') {
+        analyzeCroppedColors();
+      } else {
+        showError('Please click on the image to pick a pixel color.');
+      }
     });
 
-    // Handle "Get Top 4 Colors" button
-    analyzeBtn.addEventListener('click', () => {
-      if (!cropper) return;
+    function analyzeCroppedColors() {
+      if (!cropper) {
+        showError('Please upload and crop an image first.');
+        return;
+      }
 
       const croppedCanvas = cropper.getCroppedCanvas({
         maxWidth: 1000,
@@ -208,56 +789,171 @@
       });
 
       if (!croppedCanvas) {
-        alert('Please crop the image first.');
+        showError('Please crop the image first.');
         return;
       }
 
       const base64Data = croppedCanvas.toDataURL('image/png');
+      const numColors = colorCountSlider.value;
 
-      // Send the cropped image to the server
+      showLoading('Analyzing colors...');
+
       fetch('/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams({
-          cropped_image: base64Data
+          cropped_image: base64Data,
+          num_colors: numColors
         })
       })
       .then(response => response.json())
       .then(data => {
+        hideLoading();
         if (data.error) {
-          resultDiv.textContent = 'Error: ' + data.error;
+          showError(data.error);
         } else {
-          const colors = data.colors;
-          if (!colors || !colors.length) {
-            resultDiv.textContent = 'No colors found.';
-            return;
-          }
-
-          let html = '';
-          colors.forEach((colorObj, index) => {
-            // colorObj now has hex, rgb, cmyk
-            const { hex, rgb, cmyk } = colorObj;
-            html += `
-              <div class="color-line">
-                <div>Color #${index + 1}</div>
-                <div>HEX: <strong>${hex}</strong></div>
-                <div>RGB: <strong>${rgb}</strong></div>
-                <div>CMYK: <strong>${cmyk}</strong></div>
-                <div class="color-box" style="background:${hex};"></div>
-              </div>
-            `;
-          });
-
-          resultDiv.innerHTML = html;
+          displayResults(data);
+          showSuccess('Color analysis completed successfully!');
         }
       })
       .catch(err => {
+        hideLoading();
+        showError('An error occurred during color analysis.');
         console.error(err);
-        resultDiv.textContent = 'An error occurred.';
       });
+    }
+
+    function displayResults(data) {
+      const { colors, image_info } = data;
+      
+      // Display image info
+      imageInfo.innerHTML = `
+        <strong>Image Information:</strong> 
+        ${image_info.width} × ${image_info.height} pixels 
+        (${image_info.total_pixels.toLocaleString()} total pixels)
+      `;
+
+      // Display colors
+      colorGrid.innerHTML = '';
+      
+      colors.forEach((color, index) => {
+        const colorCard = document.createElement('div');
+        colorCard.className = 'color-card';
+        colorCard.innerHTML = `
+          <div class="color-preview" style="background-color: ${color.hex}; color: ${color.contrast_color};">
+            <div style="position: absolute; top: 5px; left: 5px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;">
+              #${color.rank}
+            </div>
+            <div style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-weight: bold; text-align: center;">
+              ${color.name}<br>
+              <small>${color.percentage}% of image</small>
+            </div>
+          </div>
+          <div class="color-info">
+            ${createColorValueRow('HEX', color.hex)}
+            ${createColorValueRow('RGB', color.rgb)}
+            ${createColorValueRow('CMYK', color.cmyk)}
+            ${createColorValueRow('HSL', color.hsl)}
+            ${createColorValueRow('HSV', color.hsv)}
+            <div class="accessibility-info">
+              <strong>Pixels:</strong> ${color.pixel_count.toLocaleString()} | 
+              <strong>Luminance:</strong> ${color.luminance}
+            </div>
+          </div>
+        `;
+        
+        colorGrid.appendChild(colorCard);
+      });
+
+      resultsSection.style.display = 'block';
+      resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function createColorValueRow(label, value) {
+      return `
+        <div class="color-value">
+          <span class="color-label">${label}:</span>
+          <span>
+            ${value}
+            <button class="copy-btn" onclick="copyToClipboard('${value}')" title="Copy ${label}">
+              <i class="fas fa-copy"></i>
+            </button>
+          </span>
+        </div>
+      `;
+    }
+
+    // Export functionality
+    document.getElementById('export-palette').addEventListener('click', () => {
+      const colors = Array.from(colorGrid.children).map(card => {
+        const hex = card.querySelector('.color-value span').textContent.split('\n')[0].trim();
+        return hex;
+      });
+      
+      const blob = new Blob([JSON.stringify(colors, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'color-palette.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      showSuccess('Palette exported successfully!');
     });
+
+    document.getElementById('copy-all-colors').addEventListener('click', () => {
+      const colors = Array.from(colorGrid.children).map(card => {
+        const colorValues = Array.from(card.querySelectorAll('.color-value')).map(cv => {
+          const label = cv.querySelector('.color-label').textContent;
+          const value = cv.querySelector('span:last-child').textContent.split('\n')[0].trim();
+          return `${label} ${value}`;
+        });
+        return colorValues.join(', ');
+      });
+      
+      copyToClipboard(colors.join('\n\n'));
+    });
+
+    // Utility functions
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showSuccess('Copied to clipboard!');
+      }).catch(() => {
+        showError('Failed to copy to clipboard.');
+      });
+    }
+
+    function showLoading(message = 'Loading...') {
+      loading.style.display = 'block';
+      loading.querySelector('p').textContent = message;
+    }
+
+    function hideLoading() {
+      loading.style.display = 'none';
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      setTimeout(() => {
+        errorMessage.style.display = 'none';
+      }, 5000);
+    }
+
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 3000);
+    }
+
+    function hideMessages() {
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+    }
   </script>
 </body>
 </html>
