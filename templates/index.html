@@ -895,6 +895,9 @@
   <script src="https://unpkg.com/cropperjs@1.5.12/dist/cropper.js"></script>
   
   <script>
+    console.log('🎨 Advanced Color Picker JavaScript loaded!');
+    console.log('Cropper.js available:', typeof Cropper !== 'undefined');
+    
     let cropper;
     let currentMode = 'crop';
     let currentImageData = null;
@@ -977,17 +980,23 @@
     });
 
     uploadArea.addEventListener('click', () => {
+      console.log('Upload area clicked, triggering file input...');
       uploadInput.click();
     });
 
     uploadInput.addEventListener('change', (e) => {
+      console.log('File input changed, files:', e.target.files.length);
       const file = e.target.files[0];
       if (file) {
         handleFileUpload(file);
+      } else {
+        console.log('No file selected');
       }
     });
 
     function handleFileUpload(file) {
+      console.log('File upload started:', file.name, file.type, file.size);
+      
       if (!file.type.startsWith('image/')) {
         showError('Please select a valid image file.');
         return;
@@ -998,39 +1007,70 @@
         return;
       }
 
+      console.log('File validation passed, creating image URL...');
       const imageURL = URL.createObjectURL(file);
       croppingImage.src = imageURL;
       croppingImage.style.display = 'block';
+      
+      console.log('Image element updated, waiting for load...');
 
       croppingImage.onload = () => {
+        console.log('Image loaded successfully, dimensions:', croppingImage.naturalWidth, 'x', croppingImage.naturalHeight);
         URL.revokeObjectURL(imageURL);
         
         if (currentMode === 'crop') {
+          console.log('Initializing cropper...');
           initializeCropper();
         } else {
+          console.log('Setting up pixel picker...');
           setupPixelPicker();
         }
         
         analyzeBtn.disabled = false;
         hideMessages();
+        console.log('File upload complete!');
+      };
+      
+      croppingImage.onerror = (e) => {
+        console.error('Image load error:', e);
+        showError('Failed to load the image. Please try a different file.');
       };
     }
 
     function initializeCropper() {
+      console.log('initializeCropper called');
+      
       if (cropper) {
+        console.log('Destroying existing cropper');
         cropper.destroy();
       }
       
-      cropper = new Cropper(croppingImage, {
-        aspectRatio: NaN,
-        viewMode: 1,
-        autoCropArea: 0.8,
-        movable: true,
-        zoomable: true,
-        scalable: true,
-        rotatable: true,
-        responsive: true
-      });
+      if (typeof Cropper === 'undefined') {
+        console.error('Cropper.js library not loaded!');
+        showError('Cropper.js library failed to load. Please refresh the page and try again.');
+        return;
+      }
+      
+      console.log('Creating new Cropper instance...');
+      try {
+        cropper = new Cropper(croppingImage, {
+          aspectRatio: NaN,
+          viewMode: 1,
+          autoCropArea: 0.8,
+          movable: true,
+          zoomable: true,
+          scalable: true,
+          rotatable: true,
+          responsive: true,
+          ready: function() {
+            console.log('Cropper is ready!');
+          }
+        });
+        console.log('Cropper created successfully');
+      } catch (error) {
+        console.error('Error creating cropper:', error);
+        showError('Failed to initialize image cropper: ' + error.message);
+      }
     }
 
     function setupPixelPicker() {
