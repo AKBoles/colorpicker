@@ -139,10 +139,7 @@
     }
 
     .file-input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
+      display: none;
     }
 
     .controls {
@@ -1164,23 +1161,31 @@
     });
 
     function analyzeCroppedColors() {
+      console.log('analyzeCroppedColors called');
+      console.log('cropper exists:', !!cropper);
+      
       if (!cropper) {
         showError('Please upload and crop an image first.');
         return;
       }
 
+      console.log('Getting cropped canvas...');
       const croppedCanvas = cropper.getCroppedCanvas({
         maxWidth: 1000,
         maxHeight: 1000
       });
 
       if (!croppedCanvas) {
+        console.error('Failed to get cropped canvas');
         showError('Please crop the image first.');
         return;
       }
 
+      console.log('Converting to base64...');
       const base64Data = croppedCanvas.toDataURL('image/png');
       const numColors = colorCountSlider.value;
+      
+      console.log('Sending request with', numColors, 'colors, data length:', base64Data.length);
 
       showLoading('Analyzing colors...');
 
@@ -1194,20 +1199,26 @@
           num_colors: numColors
         })
       })
-      .then(response => response.json())
+      .then(response => {
+        console.log('API response status:', response.status);
+        return response.json();
+      })
       .then(data => {
+        console.log('API response data:', data);
         hideLoading();
         if (data.error) {
+          console.error('API error:', data.error);
           showError(data.error);
         } else {
+          console.log('Analysis successful, displaying results...');
           displayResults(data);
           showSuccess('Color analysis completed successfully!');
         }
       })
       .catch(err => {
+        console.error('Fetch error:', err);
         hideLoading();
         showError('An error occurred during color analysis.');
-        console.error(err);
       });
     }
 
