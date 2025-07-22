@@ -940,7 +940,7 @@
         } else {
           croppingImage.classList.remove('pixel-picker-mode');
           if (croppingImage.src && !cropper) {
-            initializeCropper();
+            initializeCropper(null);
           }
         }
         
@@ -979,8 +979,10 @@
       }
     });
 
-    uploadArea.addEventListener('click', () => {
+    uploadArea.addEventListener('click', (e) => {
       console.log('Upload area clicked, triggering file input...');
+      e.preventDefault();
+      e.stopPropagation();
       uploadInput.click();
     });
 
@@ -1016,14 +1018,14 @@
 
       croppingImage.onload = () => {
         console.log('Image loaded successfully, dimensions:', croppingImage.naturalWidth, 'x', croppingImage.naturalHeight);
-        URL.revokeObjectURL(imageURL);
         
         if (currentMode === 'crop') {
           console.log('Initializing cropper...');
-          initializeCropper();
+          initializeCropper(imageURL);
         } else {
           console.log('Setting up pixel picker...');
           setupPixelPicker();
+          URL.revokeObjectURL(imageURL);
         }
         
         analyzeBtn.disabled = false;
@@ -1037,7 +1039,7 @@
       };
     }
 
-    function initializeCropper() {
+    function initializeCropper(imageURL = null) {
       console.log('initializeCropper called');
       
       if (cropper) {
@@ -1064,6 +1066,11 @@
           responsive: true,
           ready: function() {
             console.log('Cropper is ready!');
+            // Now it's safe to revoke the blob URL
+            if (imageURL) {
+              URL.revokeObjectURL(imageURL);
+              console.log('Blob URL revoked after cropper ready');
+            }
           }
         });
         console.log('Cropper created successfully');
