@@ -289,8 +289,12 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    data_url = request.form.get('cropped_image')
-    num_colors = int(request.form.get('num_colors', 5))
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No JSON data received.'}), 400
+    
+    data_url = data.get('cropped_image')
+    num_colors = int(data.get('num_colors', 5))
     
     if num_colors < 2 or num_colors > 10:
         return jsonify({'error': 'Number of colors must be between 2 and 10.'}), 400
@@ -381,9 +385,13 @@ def upload():
 def single_pixel():
     """Get color information for a single pixel"""
     try:
-        data_url = request.form.get('image_data')
-        x = int(request.form.get('x'))
-        y = int(request.form.get('y'))
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data received.'}), 400
+        
+        data_url = data.get('image_data')
+        x = int(data.get('x'))
+        y = int(data.get('y'))
         
         if not data_url:
             return jsonify({'error': 'No image data received.'}), 400
@@ -435,8 +443,12 @@ def single_pixel():
 def generate_harmony():
     """Generate color harmonies based on a base color"""
     try:
-        hex_color = request.form.get('base_color', '#ff0000')
-        harmony_type = request.form.get('harmony_type', 'complementary')
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data received.'}), 400
+        
+        hex_color = data.get('base_color', '#ff0000')
+        harmony_type = data.get('harmony_type', 'complementary')
         
         # Convert hex to RGB
         base_rgb = hex_to_rgb(hex_color)

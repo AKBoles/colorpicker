@@ -1059,9 +1059,9 @@
       fetch('/single-pixel', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json'
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
           image_data: currentImageData,
           x: x,
           y: y
@@ -1140,9 +1140,9 @@
       fetch('/upload', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json'
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
           cropped_image: base64Data,
           num_colors: numColors
         })
@@ -1263,9 +1263,9 @@
       fetch('/generate-harmony', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json'
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
           base_color: baseColor,
           harmony_type: harmonyType
         })
